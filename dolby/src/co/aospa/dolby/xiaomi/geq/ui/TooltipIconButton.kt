@@ -12,7 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,21 +25,13 @@ fun TooltipIconButton(
     text: String,
     onClick: () -> Unit
 ) {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        tooltip = {
-            Text(text)
-        },
-        state = rememberTooltipState()
+    IconButton(
+        onClick = onClick
     ) {
-        IconButton(
-            onClick = onClick
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = text,
-                modifier = Modifier.size(24.dp)
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = text,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
