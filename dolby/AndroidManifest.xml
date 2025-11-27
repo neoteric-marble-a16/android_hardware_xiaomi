@@ -14,15 +14,15 @@
         android:allowBackup="false"
         android:label="@string/dolby_title"
         android:persistent="true"
-        android:directBootAware="true"
         android:defaultToDeviceProtectedStorage="false">
 
         <receiver
             android:name=".BootCompletedReceiver"
             android:exported="true">
             <intent-filter android:priority="1000">
+                <!-- Only fire after normal boot / unlock -->
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
             </intent-filter>
         </receiver>
 
