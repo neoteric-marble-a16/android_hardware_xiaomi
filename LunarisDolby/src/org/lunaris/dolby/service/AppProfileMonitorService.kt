@@ -48,13 +48,18 @@ class AppProfileMonitorService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        val prefs = getSharedPreferences("dolby_prefs", Context.MODE_PRIVATE)
+        val monitoringEnabled = prefs.getBoolean("app_profile_monitoring_enabled", false)
+        if (!monitoringEnabled) {
+            stopSelf()
+            return
+        }
         appProfileManager = AppProfileManager(this)
         dolbyRepository = DolbyRepository(this)
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        
-        val prefs = getSharedPreferences("dolby_prefs", Context.MODE_PRIVATE)
+
         val savedProfile = prefs.getString(DolbyConstants.PREF_PROFILE, "0")?.toIntOrNull() ?: 0
-        
+
         if (!hasOriginalProfile) {
             originalProfile = savedProfile
             hasOriginalProfile = true
@@ -98,11 +103,13 @@ class AppProfileMonitorService : Service() {
                 pendingSwitchRunnable = null
             }
             
-            if (hasOriginalProfile && originalProfile >= 0) {
+            val prefs = getSharedPreferences("dolby_prefs", Context.MODE_PRIVATE)
+            val wasMonitoringEnabled = prefs.getBoolean("app_profile_monitoring_enabled", false)
+            
+            if (wasMonitoringEnabled && hasOriginalProfile && originalProfile >= 0) {
                 DolbyConstants.dlog(TAG, "Restoring original profile: $originalProfile")
                 dolbyRepository.setCurrentProfile(originalProfile)
-                
-                val prefs = getSharedPreferences("dolby_prefs", Context.MODE_PRIVATE)
+
                 val currentProfile = prefs.getString(DolbyConstants.PREF_PROFILE, "0")?.toIntOrNull() ?: 0
                 if (currentProfile != originalProfile) {
                     DolbyConstants.dlog(TAG, "WARNING: Profile restoration mismatch! Expected: $originalProfile, Got: $currentProfile")
@@ -138,6 +145,11 @@ class AppProfileMonitorService : Service() {
     private fun checkForegroundApp() {
         try {
             val prefs = getSharedPreferences("dolby_prefs", Context.MODE_PRIVATE)
+            val isMonitoringEnabled = prefs.getBoolean("app_profile_monitoring_enabled", false)
+            if (!isMonitoringEnabled) {
+                return
+            }
+            
             val headphoneOnlyMode = prefs.getBoolean("app_profile_headphone_only", false)
             
             if (headphoneOnlyMode && !isHeadphoneConnected()) {

@@ -37,8 +37,11 @@ class BootCompletedReceiver : BroadcastReceiver() {
                         Log.d(TAG, "Dolby restored successfully")
                     }
                     
-                    if (prefs.getBoolean("app_profile_monitoring_enabled", false)) {
+                    val monitoringEnabled = prefs.getBoolean("app_profile_monitoring_enabled", false)
+                    if (monitoringEnabled) {
                         AppProfileMonitorService.startMonitoring(context)
+                    } else {
+                        AppProfileMonitorService.stopMonitoring(context)
                     }
                     
                     if (isNotificationListenerEnabled(context)) {
